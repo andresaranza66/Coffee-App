@@ -4,12 +4,14 @@
 @theme {
   /* Colors */
   --color-brand-yellow: #ffb22c;
+  --color-secundary-yellow: #fde68a;
   --color-brand-brown: #854836;
 
   /* Mapping HSL variables to theme colors */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-yellow-primary: var(--color-brand-yellow);
+  --color-yellow-secundary: var(--color-secundary-yellow);
   --color-brown-primary: var(--color-brand-brown);
 
   /* Fonts */
