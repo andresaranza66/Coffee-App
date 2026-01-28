@@ -31,7 +31,7 @@ export default function Header() {
             My account
           </Link>
           <Link
-            href={"/"}
+            href={"/getCoffee"}
             className="text-sm font-medium text-amber-100 hover:text-amber-400 hover:scale-110 transition-transform"
           >
             Get Your coffee
