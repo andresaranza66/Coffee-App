@@ -1,9 +1,13 @@
+"use client";
 import Link from "next/link";
 import { Coffee } from "lucide-react";
+import { useApp } from "../providers";
 
 export default function Header() {
+  const { coffeeName } = useApp();
+
   return (
-    <header className="w-full border-b border-amber-900/30 bg-brown-primary">
+    <header className="sticky top-0 z-50 bg-brown-primary shadow-[0_4px_6px_-4px_rgba(0,0,0,1)]">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link
           href={"/"}
@@ -14,14 +18,14 @@ export default function Header() {
             className="transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110"
           />
           <span className="relative transition-transform group-hover:translate-x-1">
-            AromaCafeteroPass
+            {coffeeName}
             <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-yellow-secundary transition-all duration-300 group-hover:w-full" />
           </span>
         </Link>
 
         <nav className="flex  items-center gap-8">
           <Link
-            href={"/"}
+            href={"/account"}
             className="text-sm font-medium text-amber-100 hover:text-amber-400 hover:scale-110 transition-transform"
           >
             My account

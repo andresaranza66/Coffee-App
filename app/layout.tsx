@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
-import Header from "@/app/_components/Header";
-import "./globals.css";
+import "@/app/_styles/globals.css";
+import { Appproviders } from "./providers";
+import Footer from "./_components/Footer";
 
 export const metadata = {
   title: {
@@ -18,9 +18,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        <Header />
-        {children}
+      <body className="antialiased flex flex-col min-h-screen">
+        <Appproviders>{children}</Appproviders>
       </body>
     </html>
   );
