@@ -1,14 +1,16 @@
 "use client";
 
-import { createContext, ReactNode, useContext, useState } from "react";
+import { api } from "@/convex/_generated/api";
+import { ConvexReactClient, ConvexProvider, useQuery } from "convex/react";
+import { createContext, ReactNode, useContext } from "react";
 
 type AppContextType = {
   coffeeName: string;
-  setCoffeeName: React.Dispatch<React.SetStateAction<string>>;
   drinksCount: number;
-  setDrinksCount: React.Dispatch<React.SetStateAction<number>>;
   subDate: Date | null;
-  setSubDate: React.Dispatch<React.SetStateAction<Date | null>>;
+  isLoading: boolean;
+  userId: string;
+  subscriptions: any[];
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -17,37 +19,48 @@ type AppProviderProps = {
   children: ReactNode;
 };
 
-export function Appproviders({ children }: AppProviderProps) {
-  const [coffeeName, setCoffeeName] = useState<string>("AromaCafetero");
+const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-  const [drinksCount, setDrinksCount] = useState<number>(0);
-  const [subDate, setSubDate] = useState<Date | null>(
-    new Date("January 13, 2026"),
-  );
+export function AppDataLayer({ children }: AppProviderProps) {
+  const subscriptions = useQuery(api.user.getAllSubscriptions);
+  const isLoading = subscriptions === undefined;
+  // Static user ID for demonstration
+  const activeUser = subscriptions?.[0];
 
-  const handleMoreCoffee = () => {
-    setDrinksCount((prev) => prev + 1);
-  };
+  const drinksCount = activeUser?.drinksCount ?? 0;
+  const userId = activeUser?.userId ?? "";
+  const coffeeName = activeUser?.coffeeName ?? "No Active Subscription";
+
+  const safeSubscriptions = subscriptions ?? [];
 
   return (
     <AppContext.Provider
       value={{
-        coffeeName,
-        setCoffeeName,
         drinksCount,
-        setDrinksCount,
-        subDate,
-        setSubDate,
+        subDate: activeUser?.subDate ? new Date(activeUser.subDate) : null,
+        isLoading,
+        subscriptions: safeSubscriptions,
+        userId,
+        coffeeName,
       }}
     >
       {children}
     </AppContext.Provider>
   );
 }
+
+export function AppProviders({ children }: { children: ReactNode }) {
+  return (
+    <ConvexProvider client={convex}>
+      <AppDataLayer>{children}</AppDataLayer>
+    </ConvexProvider>
+  );
+}
+
 export function useApp() {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error("UseApp must be inside and AppProvider");
+    throw new Error("UseApp must be inside the AppProvider");
   }
   return context;
 }

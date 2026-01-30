@@ -10,7 +10,7 @@ import Link from "next/link";
 import AccountFooter from "../_components/AccountFooter";
 
 const Page = () => {
-  const { coffeeName, drinksCount, subDate, setDrinksCount } = useApp();
+  const { drinksCount, subDate } = useApp();
   const daysSubscribed = useMemo(() => {
     if (!subDate) return 0;
 
@@ -31,10 +31,10 @@ const Page = () => {
 
   return (
     <main className=" bg-amber-50">
-      <BackHeader coffeeName={coffeeName} />
+      <BackHeader />
       <section className="p-6 has-autofill: ">
         <h1 className="text-2xl font-semibold text-foreground">{greeting}</h1>
-        <div className="mt-6 rounded-2xl bg-white p-6 shadow-lg ring-1 ring-black/5 flex flex-col  gap-4 border-brand-brown-secondary  border-1">
+        <div className="mt-6 rounded-2xl bg-white p-6 shadow-lg ring-1 ring-black/5 flex flex-col  gap-4 border-brand-brown-secondary  border">
           <h1 className="text-foreground">Cofee from today</h1>
           <h3 className="text-amber-600 ">
             ¡Aviable! Show your QR code to one of our dispensary and be ready to

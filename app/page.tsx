@@ -21,10 +21,10 @@ export default function Home() {
               </span>
             </div>
 
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-yellow-primary via-white to-brown-primary bg-clip-text text-transparent mt-6">
+            <h1 className="text-5xl md:text-6xl font-bold bg-linear-to-r from-yellow-primary via-white to-brown-primary bg-clip-text text-transparent mt-6">
               Unlimited Coffee
             </h1>
-            <h2 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-yellow-primary to-black bg-clip-text text-transparent mt-1">
+            <h2 className="text-4xl md:text-6xl font-bold bg-linear-to-r from-yellow-primary to-black bg-clip-text text-transparent mt-1">
               For Just One Payment
             </h2>
             <p className="text-base text-white mt-2 max-w-prose leading-relaxed">

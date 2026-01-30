@@ -1,6 +1,5 @@
 import "@/app/_styles/globals.css";
-import { Appproviders } from "./providers";
-import Footer from "./_components/Footer";
+import { AppProviders } from "./providers";
 
 export const metadata = {
   title: {
@@ -19,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased flex flex-col min-h-screen">
-        <Appproviders>{children}</Appproviders>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
