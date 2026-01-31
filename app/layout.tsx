@@ -1,5 +1,6 @@
 import "@/app/_styles/globals.css";
 import { AppProviders } from "./providers";
+import { ConvexClientProvider } from "./_components/ConvexClientProvider";
 
 export const metadata = {
   title: {
@@ -18,7 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased flex flex-col min-h-screen">
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          <ConvexClientProvider>{children}</ConvexClientProvider>
+        </AppProviders>
       </body>
     </html>
   );

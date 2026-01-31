@@ -1,7 +1,7 @@
 "use client";
 import { useApp } from "../providers";
 import Header from "../_components/Header";
-import { formatCamelName } from "../lib/formateCamelName";
+import { formatCamelName } from "../../lib/formateCamelName";
 import { CoffeeIcon } from "lucide-react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
