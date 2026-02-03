@@ -5,7 +5,7 @@ import Pricing from "./_components/Pricing";
 import Header from "./_components/Header";
 import Footer from "./_components/Footer";
 
-export default function Home() {
+export default async function Home() {
   return (
     <>
       <Header />

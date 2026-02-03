@@ -29,6 +29,12 @@ export const createSubscription = mutation({
       subscriptionId,
       drinksCount: 0,
       subDate: new Date().toISOString(),
+
+      // Better Auth required fields (provide defaults)
+      name: email.split("@")[0],
+      emailVerified: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     });
   },
 });
@@ -59,6 +65,19 @@ export const getAllSubscriptions = query({
   handler: async (ctx) => {
     // .collect() gets every single record in the table as an array
     return await ctx.db.query("users").collect();
+  },
+});
+
+//Query for gtting the user of the email
+export const getUserEmail = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Unauthorized");
+    }
+
+    return identity.email;
   },
 });
 

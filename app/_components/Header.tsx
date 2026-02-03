@@ -19,6 +19,8 @@ export default function Header() {
             <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-yellow-secundary transition-all duration-300 group-hover:w-full" />
           </span>
         </Link>
+        <Link href="/login">Login</Link>
+        <Link href="/signup">Sign up</Link>
 
         <nav className="flex  items-center gap-8">
           <Link
