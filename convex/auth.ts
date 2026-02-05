@@ -32,6 +32,8 @@ export const createAuthOptions = (ctx: GenericCtx<DataModel>) => ({
   plugins: [convex({ authConfig })],
 });
 
+console.log(process.env.NEXT_PUBLIC_SITE_URL, "Check point");
+
 /**
  * REQUIRED EXPORT #3
  */

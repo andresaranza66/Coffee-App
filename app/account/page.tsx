@@ -2,7 +2,7 @@
 
 import BackHeader from "../_components/BackHeader";
 import { useApp } from "../providers";
-import { getTimeOfDay } from "../../lib/time";
+import { getTimeOfDay } from "../lib/time";
 import { useMemo } from "react";
 import Image from "next/image";
 import { Calendar, CoffeeIcon, QrCode } from "lucide-react";

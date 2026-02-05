@@ -3,27 +3,24 @@ import { v } from "convex/values";
 
 export default defineSchema({
   users: defineTable({
-    // Better Auth Fields
+    // Better Auth core fields
     name: v.optional(v.string()),
+    email: v.string(),
     emailVerified: v.optional(v.boolean()),
+    image: v.optional(v.string()),
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
 
-    // Your existing fields
-    email: v.string(),
-    userId: v.optional(v.string()),
+    // Subscription fields (OPTION 1)
     coffeeName: v.optional(v.string()),
     subscriptionId: v.optional(v.string()),
-    drinksCount: v.number(),
-    subDate: v.optional(v.string()),
-    image: v.optional(v.string()),
-  })
-    .index("by_email", ["email"])
-    .index("by_userId", ["userId"]), // Re-adding this index to fix your errors
+    drinksCount: v.optional(v.number()),
+    subDate: v.optional(v.number()),
+  }).index("by_email", ["email"]),
 
-  // Keep the other tables (sessions, accounts, verifications) exactly as they were
+  // Auth tables — DO NOT CHANGE
   sessions: defineTable({
-    userId: v.string(),
+    userId: v.string(), // auth user _id
     token: v.string(),
     expiresAt: v.number(),
     ipAddress: v.optional(v.string()),
@@ -33,7 +30,7 @@ export default defineSchema({
   }).index("by_token", ["token"]),
 
   accounts: defineTable({
-    userId: v.string(),
+    userId: v.string(), // auth user _id
     accountId: v.string(),
     providerId: v.string(),
     accessToken: v.optional(v.string()),
