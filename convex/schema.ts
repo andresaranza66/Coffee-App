@@ -4,6 +4,7 @@ import { v } from "convex/values";
 export default defineSchema({
   users: defineTable({
     // Better Auth core fields
+    authId: v.string(),
     name: v.optional(v.string()),
     email: v.string(),
     emailVerified: v.optional(v.boolean()),
@@ -11,16 +12,18 @@ export default defineSchema({
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
 
-    // Subscription fields (OPTION 1)
+    // Subscription fields
     coffeeName: v.optional(v.string()),
     subscriptionId: v.optional(v.string()),
     drinksCount: v.optional(v.number()),
     subDate: v.optional(v.number()),
-  }).index("by_email", ["email"]),
+  })
+    .index("by_email", ["email"])
+    .index("by_authId", ["authId"]), // ⭐ ESTE FALTABA
 
   // Auth tables — DO NOT CHANGE
   sessions: defineTable({
-    userId: v.string(), // auth user _id
+    userId: v.string(),
     token: v.string(),
     expiresAt: v.number(),
     ipAddress: v.optional(v.string()),
@@ -30,7 +33,7 @@ export default defineSchema({
   }).index("by_token", ["token"]),
 
   accounts: defineTable({
-    userId: v.string(), // auth user _id
+    userId: v.string(),
     accountId: v.string(),
     providerId: v.string(),
     accessToken: v.optional(v.string()),

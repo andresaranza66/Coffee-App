@@ -1,87 +1,97 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { getAuthUserId } from "@convex-dev/auth/server";
-import { generateSubscriptionId } from "./utils";
 
-/* ------------------------------------------------------------------ */
-/* CURRENT AUTHENTICATED USER                                         */
-/* ------------------------------------------------------------------ */
+/* ------------------------------------------------ */
+/* CURRENT USER                                     */
+/* ------------------------------------------------ */
 
 export const currentUser = query({
-  args: {},
   handler: async (ctx) => {
-    const authUserId = await getAuthUserId(ctx);
-    if (!authUserId) return null;
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
 
-    const user = await ctx.db.get(authUserId);
-    if (!user) return null;
+    // Better Auth users are usually identified by their email in Convex
+    return await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", identity.email!))
+      .unique();
+  },
+});
+/* ------------------------------------------------ */
+/* ENSURE USER (create if not exists)                */
+/* ------------------------------------------------ */
 
-    return {
-      id: user._id,
-      name: user.name ?? null,
-      email: user.email,
-      createdAt: user.createdAt ?? null,
+export const ensureUser = mutation({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return;
 
-      coffeeName: user.coffeeName ?? null,
-      subscriptionId: user.subscriptionId ?? null,
-      drinksCount: user.drinksCount ?? 0,
-      subDate: user.subDate ?? null,
-    };
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", identity.email!))
+      .unique();
+
+    if (existing) {
+      // If Better Auth already made the user, just link the authId if missing
+      if (!existing.authId) {
+        await ctx.db.patch(existing._id, { authId: identity.subject });
+      }
+      return existing._id;
+    }
+
+    // If user doesn't exist, create a new one
+    return await ctx.db.insert("users", {
+      authId: identity.subject,
+      email: identity.email ?? "",
+      name: identity.name ?? "",
+      createdAt: Date.now(),
+      drinksCount: 0,
+    });
   },
 });
 
-/* ------------------------------------------------------------------ */
-/* CREATE SUBSCRIPTION                                                 */
-/* ------------------------------------------------------------------ */
+// */ADD DRINKS COUNT
+export const addDrink = mutation({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
 
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_authId", (q) => q.eq("authId", identity.subject))
+      .unique();
+
+    if (!user) throw new Error("User not found");
+
+    await ctx.db.patch(user._id, {
+      drinksCount: (user.drinksCount ?? 0) + 1,
+    });
+  },
+});
+
+//CREATE SUBSCRIPTION
 export const createSubscription = mutation({
   args: {
     coffeeName: v.string(),
+    // Tip: If you always start at 0, you don't need this in args
   },
   handler: async (ctx, { coffeeName }) => {
-    const authUserId = await getAuthUserId(ctx);
-    if (!authUserId) throw new Error("Unauthorized");
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
 
-    const user = await ctx.db.get(authUserId);
+    // Search by email to ensure we hit the Better Auth user
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", identity.email!))
+      .unique();
+
     if (!user) throw new Error("User not found");
 
-    if (user.subscriptionId) {
-      throw new Error("User already has a subscription");
-    }
-
-    const subscriptionId = generateSubscriptionId(coffeeName);
-
-    await ctx.db.patch(authUserId, {
+    await ctx.db.patch(user._id, {
       coffeeName,
-      subscriptionId,
-      drinksCount: 0,
-      subDate: Date.now(), // ✅ number
-      updatedAt: Date.now(),
-    });
-
-    return subscriptionId;
-  },
-});
-
-/* ------------------------------------------------------------------ */
-/* DRINK COFFEE                                                        */
-/* ------------------------------------------------------------------ */
-
-export const drinkCoffee = mutation({
-  args: {},
-  handler: async (ctx) => {
-    const authUserId = await getAuthUserId(ctx);
-    if (!authUserId) throw new Error("Unauthorized");
-
-    const user = await ctx.db.get(authUserId);
-    if (!user) throw new Error("User not found");
-
-    if (!user.subscriptionId) {
-      throw new Error("No active subscription");
-    }
-
-    await ctx.db.patch(authUserId, {
-      drinksCount: (user.drinksCount ?? 0) + 1,
+      subscriptionId: Math.random().toString(36).slice(2),
+      drinksCount: 0, // Reset to 0 for new sub
+      subDate: Date.now(),
       updatedAt: Date.now(),
     });
   },

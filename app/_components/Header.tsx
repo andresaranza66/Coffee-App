@@ -16,7 +16,7 @@ export default function Header() {
           />
           <span className="relative transition-transform group-hover:translate-x-1">
             AromaCafetero
-            <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-yellow-secundary transition-all duration-300 group-hover:w-full" />
+            <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-yellow-secundary transition-all duration-300 group-hover:w-full" />
           </span>
         </Link>
         <Link href="/login">Login</Link>

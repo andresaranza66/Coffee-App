@@ -6,6 +6,7 @@ import { components } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel";
 import schema from "./betterAuth/schema";
 import authConfig from "./auth.config";
+import { query } from "./_generated/server";
 
 /**
  * REQUIRED EXPORT #1
@@ -39,3 +40,11 @@ console.log(process.env.NEXT_PUBLIC_SITE_URL, "Check point");
  */
 export const createAuth = (ctx: GenericCtx<DataModel>) =>
   betterAuth(createAuthOptions(ctx));
+
+export const getCurrentUser = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    return identity;
+  },
+});

@@ -2,31 +2,32 @@
 
 import BackHeader from "../_components/BackHeader";
 import { useApp } from "../providers";
-import { getTimeOfDay } from "../lib/time";
 import { useMemo } from "react";
 import Image from "next/image";
 import { Calendar, CoffeeIcon, QrCode } from "lucide-react";
 import Link from "next/link";
 import AccountFooter from "../_components/AccountFooter";
+import { getTimeOfDay } from "@/lib/time";
 
 const Page = () => {
   const { drinksCount, subDate } = useApp();
+  const date = useMemo(() => new Date(subDate ?? 0), [subDate]);
   const daysSubscribed = useMemo(() => {
     if (!subDate) return 0;
 
     const today = new Date();
-    const diffInTime = today.getTime() - subDate.getTime();
+    const diffInTime = today.getTime() - date.getTime();
 
     // Math: Milliseconds / (1000ms * 60s * 60m * 24h)
     const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
 
     return diffInDays > 0 ? diffInDays : 0; // Ensure it doesn't show negative
-  }, [subDate]);
+  }, [date, subDate]);
   const subMonth = useMemo(() => {
-    return subDate
-      ? subDate.toLocaleString("en-US", { month: "long", year: "numeric" })
+    return date
+      ? date.toLocaleString("en-US", { month: "long", year: "numeric" })
       : "";
-  }, [subDate]);
+  }, [date]);
   const greeting = useMemo(() => getTimeOfDay(), []);
 
   return (

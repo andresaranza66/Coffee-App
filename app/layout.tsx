@@ -13,15 +13,15 @@ export const metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className="antialiased flex flex-col min-h-screen">
-        <AppProviders>
-          <ConvexClientProvider>{children}</ConvexClientProvider>
-        </AppProviders>
+      <body>
+        <ConvexClientProvider>
+          <AppProviders>{children}</AppProviders>
+        </ConvexClientProvider>
       </body>
     </html>
   );

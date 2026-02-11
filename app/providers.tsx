@@ -1,8 +1,23 @@
 "use client";
 
 import { api } from "@/convex/_generated/api";
-import { ConvexReactClient, ConvexProvider, useQuery } from "convex/react";
-import { createContext, ReactNode, useContext } from "react";
+import {
+  ConvexReactClient,
+  useQuery,
+  useMutation,
+  useConvexAuth,
+} from "convex/react";
+
+import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
+import { authClient } from "@/lib/auth-client";
+
+import { createContext, ReactNode, useContext, useEffect } from "react";
+
+/* ------------------------------------------------------------------ */
+/* CLIENT                                                             */
+/* ------------------------------------------------------------------ */
+
+const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 /* ------------------------------------------------------------------ */
 /* CONTEXT TYPE                                                       */
@@ -11,47 +26,43 @@ import { createContext, ReactNode, useContext } from "react";
 type AppContextType = {
   isLoading: boolean;
   isAuthenticated: boolean;
-
   name: string | null;
   email: string | null;
-  createdAt: number | null;
-
   coffeeName: string | null;
   drinksCount: number;
-  subDate: Date | null;
+  subDate: number | null;
 };
 
-/* ------------------------------------------------------------------ */
-/* CONTEXT                                                            */
 /* ------------------------------------------------------------------ */
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 /* ------------------------------------------------------------------ */
-/* PROVIDER                                                           */
+/* DATA LAYER                                                         */
 /* ------------------------------------------------------------------ */
 
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+function AppDataLayer({ children }: { children: ReactNode }) {
+  const { isAuthenticated } = useConvexAuth();
 
-export function AppDataLayer({ children }: { children: ReactNode }) {
   const user = useQuery(api.user.currentUser);
+  const ensureUser = useMutation(api.user.ensureUser);
 
-  const isLoading = user === undefined;
-  const isAuthenticated = user !== null;
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    ensureUser();
+  }, [isAuthenticated, ensureUser]);
 
   return (
     <AppContext.Provider
       value={{
-        isLoading,
+        isLoading: user === undefined,
         isAuthenticated,
-
         name: user?.name ?? null,
         email: user?.email ?? null,
-        createdAt: user?.createdAt ?? null,
-
+        //Adding the subscription
         coffeeName: user?.coffeeName ?? null,
         drinksCount: user?.drinksCount ?? 0,
-        subDate: user?.subDate ? new Date(user.subDate) : null,
+        subDate: user?.subDate ?? null,
       }}
     >
       {children}
@@ -65,20 +76,16 @@ export function AppDataLayer({ children }: { children: ReactNode }) {
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
-    <ConvexProvider client={convex}>
+    <ConvexBetterAuthProvider client={convex} authClient={authClient}>
       <AppDataLayer>{children}</AppDataLayer>
-    </ConvexProvider>
+    </ConvexBetterAuthProvider>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* HOOK                                                               */
-/* ------------------------------------------------------------------ */
 
 export function useApp() {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error("useApp must be used inside AppProviders");
-  }
-  return context;
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error("useApp must be used inside AppProviders");
+  return ctx;
 }

@@ -9,8 +9,9 @@ import { api } from "@/convex/_generated/api";
 export default function Page() {
   const { isLoading, isAuthenticated, coffeeName, drinksCount, subDate } =
     useApp();
+  const createSubscription = useMutation(api.user.createSubscription);
 
-  const drinkCoffee = useMutation(api.user.drinkCoffee);
+  // const drinkCoffee = useMutation(api.user.drinkCoffee);
 
   if (isLoading) return <p>Loading...</p>;
 
@@ -28,17 +29,38 @@ export default function Page() {
           <>
             <p>Coffee: {coffeeName}</p>
             <p>Drinks: {drinksCount}</p>
-            <p>Joined: {subDate ? subDate.toLocaleDateString() : "N/A"}</p>
+            <p>
+              Joined: {subDate ? new Date(subDate).toLocaleDateString() : "N/A"}
+            </p>
 
             <button
-              onClick={() => drinkCoffee()}
+              // onClick={() => drinkCoffee()}
               className="mt-4 flex gap-2 items-center"
             >
               <CoffeeIcon /> Drink Coffee
             </button>
           </>
         ) : (
-          <p>No active subscription</p>
+          <>
+            <p>No active subscription</p>
+
+            <button
+              className="mt-4 px-4 py-2 bg-brown-primary text-white rounded-xl hover:bg-brown-secondary hover:scale-105 transition-transform hover:cursor-pointer "
+              onClick={async () => {
+                console.log("Button clicked!");
+                try {
+                  await createSubscription({
+                    coffeeName: "Latte",
+                  });
+                  console.log("Subscription created!");
+                } catch (err) {
+                  console.error("Mutation failed:", err);
+                }
+              }}
+            >
+              Create subscription
+            </button>
+          </>
         )}
       </section>
     </main>
