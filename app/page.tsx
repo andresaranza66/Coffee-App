@@ -8,7 +8,18 @@ import Footer from "./_components/Footer";
 export default async function Home() {
   return (
     <>
-      <Header />
+      <Header
+        navLinks={[
+          { label: "My account", href: "/account" },
+          { label: "Get Your coffee", href: "/getCoffee" },
+        ]}
+        authLinks={[
+          { label: "Log in", href: "/login" },
+          { label: "Sign up", href: "/signup" },
+          { label: "Log Out", href: "/logOut" },
+        ]}
+        showUserDropdown={true}
+      />
       <main className="relative min-h-screen">
         <section className="relative h-200 w-full flex flex-col justify-start items-start px-12 pt-20 overflow-hidden">
           <div className="absolute inset-0 bg-[url('/coffeeImg1.png')] bg-cover bg-center blur-sm scale-105" />
@@ -35,7 +46,7 @@ export default async function Home() {
 
             <div className="flex flex-wrap gap-4 mt-9">
               <Link
-                href="/"
+                href="/account"
                 className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-brown-primary text-white hover:bg-gray-900 hover:scale-105 transition"
               >
                 <Sparkles className="mr-4" /> Start your subscription

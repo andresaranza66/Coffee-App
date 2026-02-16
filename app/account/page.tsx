@@ -97,8 +97,8 @@ const Page = () => {
             </div>
           </div>
         </div>
+        <AccountFooter />
       </section>
-      <AccountFooter />
     </main>
   );
 };

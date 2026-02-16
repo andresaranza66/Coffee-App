@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const AccountFooter = () => {
   return (
-    <footer className="bg-white shadow-inner flex flex-col md:flex-row items-start md:items-center justify-between py-6 px-12 gap-4 font-display">
+    <footer className="bg-white shadow-inner flex flex-col md:flex-row items-start md:items-center justify-between  gap-4 font-display px-4 py-8 mb-8 mt-8 rounded-2xl">
       <div className="text-left md:text-left ">
         <p className="text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} CoffeeName. Your subscription renew

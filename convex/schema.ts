@@ -52,4 +52,10 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }),
+  coffees: defineTable({
+    name: v.string(),
+    price: v.number(),
+    stock: v.number(),
+    description: v.string(),
+  }),
 });

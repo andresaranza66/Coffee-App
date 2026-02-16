@@ -9,6 +9,7 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as coffee from "../coffee.js";
 import type * as http from "../http.js";
 import type * as user from "../user.js";
 import type * as utils from "../utils.js";
@@ -21,6 +22,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  coffee: typeof coffee;
   http: typeof http;
   user: typeof user;
   utils: typeof utils;
