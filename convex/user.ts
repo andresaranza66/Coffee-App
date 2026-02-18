@@ -10,13 +10,13 @@ export const currentUser = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return null;
 
-    // Better Auth users are usually identified by their email in Convex
     return await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", identity.email!))
+      .withIndex("by_authId", (q) => q.eq("authId", identity.subject))
       .unique();
   },
 });
+
 /* ------------------------------------------------ */
 /* ENSURE USER (create if not exists)                */
 /* ------------------------------------------------ */
@@ -28,24 +28,18 @@ export const ensureUser = mutation({
 
     const existing = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", identity.email!))
+      .withIndex("by_authId", (q) => q.eq("authId", identity.subject))
       .unique();
 
-    if (existing) {
-      // If Better Auth already made the user, just link the authId if missing
-      if (!existing.authId) {
-        await ctx.db.patch(existing._id, { authId: identity.subject });
-      }
-      return existing._id;
-    }
+    if (existing) return existing._id;
 
-    // If user doesn't exist, create a new one
     return await ctx.db.insert("users", {
       authId: identity.subject,
       email: identity.email ?? "",
       name: identity.name ?? "",
       createdAt: Date.now(),
       drinksCount: 0,
+      drinksMonth: new Date().toISOString().slice(0, 7),
     });
   },
 });
@@ -63,34 +57,42 @@ export const addDrink = mutation({
 
     if (!user) throw new Error("User not found");
 
+    const currentMonth = new Date().toISOString().slice(0, 7);
+
+    let newCount = 1;
+
+    if (user.drinksMonth === currentMonth) {
+      newCount = (user.drinksCount ?? 0) + 1;
+    }
+
     await ctx.db.patch(user._id, {
-      drinksCount: (user.drinksCount ?? 0) + 1,
+      drinksCount: newCount,
+      drinksMonth: currentMonth,
     });
   },
 });
 
 //CREATE SUBSCRIPTION
 export const createSubscription = mutation({
-  args: {
-    coffeeName: v.string(),
-    // Tip: If you always start at 0, you don't need this in args
-  },
+  args: { coffeeName: v.string() },
   handler: async (ctx, { coffeeName }) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Unauthorized");
 
-    // Search by email to ensure we hit the Better Auth user
     const user = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", identity.email!))
+      .withIndex("by_authId", (q) => q.eq("authId", identity.subject))
       .unique();
 
     if (!user) throw new Error("User not found");
 
+    const currentMonth = new Date().toISOString().slice(0, 7);
+
     await ctx.db.patch(user._id, {
       coffeeName,
       subscriptionId: Math.random().toString(36).slice(2),
-      drinksCount: 0, // Reset to 0 for new sub
+      drinksCount: 0,
+      drinksMonth: currentMonth,
       subDate: Date.now(),
       updatedAt: Date.now(),
     });

@@ -16,6 +16,8 @@ export default defineSchema({
     coffeeName: v.optional(v.string()),
     subscriptionId: v.optional(v.string()),
     drinksCount: v.optional(v.number()),
+    drinksMonth: v.optional(v.string()),
+    lastDrinkDate: v.optional(v.string()),
     subDate: v.optional(v.number()),
   })
     .index("by_email", ["email"])
@@ -58,4 +60,12 @@ export default defineSchema({
     stock: v.number(),
     description: v.string(),
   }),
+  orders: defineTable({
+    userId: v.string(),
+    coffeeId: v.id("coffees"),
+    type: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_date", ["userId", "createdAt"]),
 });
