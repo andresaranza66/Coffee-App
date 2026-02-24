@@ -12,39 +12,44 @@ export const seedCoffees = mutation({
         price: 3,
         stock: 100,
         description: "Classic americano coffee",
+        image: "/americano.png",
       },
       {
         name: "Doble Americano",
         price: 4,
         stock: 100,
         description: "Double shot americano",
+        image: "/dobleAmericano.png",
       },
       {
         name: "Latte",
         price: 4.5,
         stock: 100,
         description: "Espresso with milk",
+        image: "/lattee.png",
       },
       {
         name: "Capuccino",
         price: 4.5,
         stock: 100,
         description: "Espresso with steamed milk foam",
+        image: "/capuchino.png",
       },
       {
         name: "Regular Coffee",
         price: 2.5,
         stock: 100,
         description: "House brewed coffee",
+        image: "/regularCoffee.png",
       },
       {
         name: "Seasonal Special",
         price: 5,
         stock: 100,
         description: "Limited seasonal coffee",
+        image: "/seasonalCoffee.png",
       },
     ];
-
     for (const coffee of coffees) {
       console.log(coffee);
       await ctx.db.insert("coffees", coffee);

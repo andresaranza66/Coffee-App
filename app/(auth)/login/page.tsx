@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const ensureUser = useMutation(api.user.ensureUser);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -20,6 +23,7 @@ export default function LoginPage() {
         password,
       });
 
+      await ensureUser(); // 👈 THIS CREATES THE DB USER
       window.location.href = "/";
     } catch (err: string | any) {
       setError(err.message ?? "Invalid credentials");
@@ -30,8 +34,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <form onSubmit={handleSubmit} className="space-y-4 w-80">
-        <h1 className="text-2xl font-semibold">Sign in</h1>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 w-80 flex flex-col justify-center items-center"
+      >
+        <h1 className="text-2xl font-semibold ">Login</h1>
 
         <input
           type="email"
@@ -56,9 +63,9 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-black text-white py-2 rounded"
+          className="w-full bg-black text-white py-2 rounded hover:cursor-pointer hover:bg-gray-500 transition-color"
         >
-          {loading ? "Signing in..." : "Sign in"}
+          {loading ? "Login...." : "Login"}
         </button>
       </form>
     </div>

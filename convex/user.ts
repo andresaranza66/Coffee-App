@@ -86,13 +86,10 @@ export const createSubscription = mutation({
 
     if (!user) throw new Error("User not found");
 
-    const currentMonth = new Date().toISOString().slice(0, 7);
-
+    // Only update subscription info — do NOT touch drinksCount
     await ctx.db.patch(user._id, {
       coffeeName,
       subscriptionId: Math.random().toString(36).slice(2),
-      drinksCount: 0,
-      drinksMonth: currentMonth,
       subDate: Date.now(),
       updatedAt: Date.now(),
     });

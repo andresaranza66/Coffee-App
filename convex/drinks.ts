@@ -24,23 +24,33 @@ export const consumeDrink = mutation({
 });
 
 export const canDrinkToday = query({
-  args: {
-    userId: v.string(),
-  },
-  handler: async (ctx, { userId }) => {
-    const today = new Date().toISOString().split("T")[0];
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return { canDrink: false };
 
     const user = await ctx.db
       .query("users")
-      .withIndex("by_authId", (q) => q.eq("authId", userId))
+      .withIndex("by_authId", (q) => q.eq("authId", identity.subject))
       .unique();
+
     if (!user) return { canDrink: false };
 
-    const canDrink = user.lastDrinkDate !== today;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const existingFree = await ctx.db
+      .query("orders")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("userId"), user._id),
+          q.eq(q.field("type"), "free"),
+          q.gte(q.field("createdAt"), today.getTime()),
+        ),
+      )
+      .first();
 
     return {
-      canDrink,
-      lastDrinkDate: user.lastDrinkDate ?? null,
+      canDrink: !existingFree,
     };
   },
 });
@@ -48,49 +58,95 @@ export const canDrinkToday = query({
 // This is the file where the user would be accessing to the daily free coffee.
 export const consumeFreeDailyDrink = mutation({
   args: {
-    userId: v.string(),
     coffeeId: v.id("coffees"),
   },
+  handler: async (ctx, { coffeeId }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
 
-  handler: async (ctx, { userId, coffeeId }) => {
-    console.log("Attempting order for user:", userId);
     const user = await ctx.db
       .query("users")
-      .withIndex("by_authId", (q) => q.eq("authId", userId))
+      .withIndex("by_authId", (q) => q.eq("authId", identity.subject))
       .unique();
+
     if (!user) throw new Error("User not found");
 
-    const today = new Date().toISOString().split("T")[0];
+    const coffee = await ctx.db.get(coffeeId);
+    if (!coffee) throw new Error("Coffee not found");
 
-    if (user.lastDrinkDate === today) {
+    if (coffee.stock <= 0) {
+      throw new Error("Out of stock");
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const existingFree = await ctx.db
+      .query("orders")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("userId"), user._id),
+          q.eq(q.field("type"), "free"),
+          q.gte(q.field("createdAt"), today.getTime()),
+        ),
+      )
+      .first();
+
+    if (existingFree) {
       throw new Error("Daily free drink already used");
     }
 
-    // registrar consumo
+    await ctx.db.patch(coffeeId, {
+      stock: coffee.stock - 1,
+    });
+
     await ctx.db.insert("orders", {
-      userId: userId,
+      userId: user._id,
       coffeeId,
       type: "free",
       createdAt: Date.now(),
     });
 
-    await ctx.db.patch(user._id, {
-      lastDrinkDate: today,
-    });
+    return true;
   },
 });
+
 //Comprar el drink the times the user wants.
 export const buyDrink = mutation({
   args: {
-    userId: v.string(),
     coffeeId: v.id("coffees"),
   },
-  handler: async (ctx, { userId, coffeeId }) => {
+  handler: async (ctx, { coffeeId }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_authId", (q) => q.eq("authId", identity.subject))
+      .unique();
+
+    if (!user) throw new Error("User not found");
+
+    const coffee = await ctx.db.get(coffeeId);
+    if (!coffee) throw new Error("Coffee not found");
+
+    if (coffee.stock <= 0) {
+      throw new Error("Out of stock");
+    }
+
+    // ✅ Decrease stock
+    await ctx.db.patch(coffeeId, {
+      stock: coffee.stock - 1,
+    });
+
+    // ✅ Create order record
     await ctx.db.insert("orders", {
-      userId: userId,
+      userId: user._id,
       coffeeId,
       type: "paid",
       createdAt: Date.now(),
     });
+
+    return true;
   },
 });

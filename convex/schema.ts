@@ -59,6 +59,7 @@ export default defineSchema({
     price: v.number(),
     stock: v.number(),
     description: v.string(),
+    image: v.optional(v.string()),
   }),
   orders: defineTable({
     userId: v.string(),

@@ -2,6 +2,7 @@ import "@/app/_styles/globals.css";
 import { AppProviders } from "./providers";
 import { ConvexClientProvider } from "./_components/ConvexClientProvider";
 import { Toaster } from "sonner";
+import { EnsureUserProvider } from "./_components/EnsureUserProvider";
 
 export const metadata = {
   title: {
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ConvexClientProvider>
+          <EnsureUserProvider />
           <AppProviders>
             {children}
             <Toaster position="top-right" richColors />
